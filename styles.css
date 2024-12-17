@@ -1,7 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap'); /* Weights of a font above: 400, 700 */
+:root {
+  --primary-bright-blue: hsl(220, 98%, 61%);
+  --background-linear-gradient: linear-gradient(
+    to right,
+    hsl(192, 100%, 67%),
+    hsl(280, 87%, 65%)
+  );
+  --light-theme-very-light-gray: hsl(0, 0%, 98%);
+  --light-theme-very-light-grayish-blue: hsl (236, 33%, 92%);
+  --light-theme-light-grayish-blue: hsl(233, 11%, 84%);
+  --light-theme-dark-grayish-blue: hsl(236, 9%, 61%);
+  --light-theme-very-dark-grayish-blue: hsl(235, 19%, 35%);
+  --dark-theme-very-dark-blue: hsl(235, 21%, 11%);
+  --dark-theme-very-dark-desaturated-blue: hsl(235, 24%, 19%);
+  --dark-theme-light-grayish-blue: hsl(234, 39%, 85%);
+  --dark-theme-light-grayish-blue-hover: hsl(234, 39%, 85%);
+  --dark-theme-dark-grayish-blue: hsl(234, 11%, 52%);
+  --dark-theme-very-dark-grayish-blue: hsl(233, 14%, 35%);
+  --dark-theme-very-dark-grayish-blue-hover: hsl(237, 14%, 26%);
+  --base-font-size: 18px;
+}
+li {
+  list-style-type: none;
+}
+body {
+  font-family: 'Josefin Sans', serif;
+}
 .attribution {
   font-size: 11px;
   text-align: center;
 }
 .attribution a {
   color: hsl(228, 45%, 44%);
+}
+
+.todo-wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid;
+  /* padding: 20px; */
+  width: 100%;
+  max-width: 375px;
+  align-items: center;
+}
+.header-wrapper {
+  align-self: normal;
+  display: flex;
+  justify-content: space-between;
+  background-image: url('./images/bg-mobile-light.jpg');
+  height: 200px;
+}
+.toggle-light-dark-mode {
+  height: 32px;
+}
+.h1-todo {
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  color: var(--light-theme-very-light-gray);
+}
+.toggle-light-dark-mode,
+.h1-todo {
+  margin: 20px;
+  padding-top: 20px;
+}
+.new-todo-input {
+  width: 90%;
+  margin-top: -90px;
+  height: 40px;
+  border: none;
+  border-radius: 4px;
+}
+
+.todo-text-completed {
+  text-decoration: line-through;
+}
+
+.todo-checkbox-completed {
+  color: var(--background-linear-gradient);
+  position: relative;
+}
+.todo-checkbox-completed::after {
+  content: '✔';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
