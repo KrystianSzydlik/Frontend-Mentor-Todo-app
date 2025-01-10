@@ -1,44 +1,175 @@
-class TodoApp {
-  constructor() {
-    // Inicjalizacja elementów DOM
-    this.formSubmission = document.getElementById('todo-form');
-    this.todoInput = document.getElementById('new-todo-input');
-    this.todoList = document.getElementById('todo-list');
-    this.filterAllBtn = document.querySelector('.filter-all');
-    this.filterActiveBtn = document.querySelector('.filter-active');
-    this.filterCompletedBtn = document.querySelector(
-      '.filter-completed'
-    );
-    this.clearCompletedBtn = document.querySelector(
-      '.clear-completed'
-    );
-
-    // Bindowanie metod
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.todoListChangeHandle = this.todoListChangeHandle.bind(this);
-    this.filterAll = this.filterAll.bind(this);
-    this.filterActive = this.filterActive.bind(this);
-    this.filterCompleted = this.filterCompleted.bind(this);
-    this.deleteCompleted = this.deleteCompleted.bind(this);
-
-    this.addEventListeners();
+// Klasa odpowiedzialna za renderowanie całej listy
+class TodoListRenderer {
+  static renderTodoList() {
+    const todoList = document.createElement('ul');
+    todoList.id = 'todo-list';
+    todoList.className = 'todo-list';
+    document.querySelector('.todo-wrapper').appendChild(todoList);
+    return todoList;
   }
-  addEventListeners() {
-    // Dodawanie event listenerów
-    this.formSubmission.addEventListener('submit', this.handleSubmit);
+}
+
+// Klasa odpowiedzialna za renderowanie pojedynczego todo
+class TodoRenderer {
+  static createTodo(todo) {
+    const todoItem = document.createElement('li');
+    todoItem.className = 'todo-item';
+    todoItem.dataset.id = todo.id;
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'todo-item-checkbox';
+    checkbox.checked = todo.isChecked;
+
+    const span = document.createElement('span');
+    span.className = 'todo-text';
+    span.textContent = todo.description;
+
+    todoItem.appendChild(checkbox);
+    todoItem.appendChild(span);
+
+    return todoItem;
+  }
+}
+
+// Główna klasa zarządzająca listą todos
+class TodoList {
+  constructor() {
+    this.todos = [];
+    this.todoList = TodoListRenderer.renderTodoList();
+    this.initializeEventListeners();
+  }
+
+  initializeEventListeners() {
     this.todoList.addEventListener(
       'change',
-      this.todoListChangeHandle
+      this.handleTodoChange.bind(this)
     );
-    this.filterAllBtn.addEventListener('click', this.filterAll);
-    this.filterActiveBtn.addEventListener('click', this.filterActive);
-    this.filterCompletedBtn.addEventListener(
-      'click',
-      this.filterCompleted
+    document
+      .querySelector('.filter-all')
+      .addEventListener('click', () => this.filterAll());
+    document
+      .querySelector('.filter-active')
+      .addEventListener('click', () => this.filterActive());
+    document
+      .querySelector('.filter-completed')
+      .addEventListener('click', () => this.filterCompleted());
+    document
+      .querySelector('.clear-completed')
+      .addEventListener('click', () => this.deleteCompleted());
+  }
+
+  addTodo(todo) {
+    this.todos.push(todo);
+    const todoElement = TodoRenderer.createTodo(todo);
+    this.todoList.appendChild(todoElement);
+  }
+
+  removeFromList(id) {
+    // Usuwanie z tablicy todos za pomocą filter
+    this.todos = this.todos.filter((todo) => todo.id !== id);
+    // Usuwanie elementu DOM
+    const todoElement = this.todoList.querySelector(
+      `[data-id="${id}"]`
     );
-    this.clearCompletedBtn.addEventListener(
-      'click',
-      this.deleteCompleted
+    if (todoElement) {
+      todoElement.remove();
+    }
+  }
+
+  handleTodoChange(event) {
+    const checkbox = event.target;
+    if (checkbox.matches('.todo-item-checkbox')) {
+      const todoItem = checkbox.closest('.todo-item');
+      const todoId = todoItem.dataset.id;
+      const todo = this.todos.find((t) => t.id === todoId);
+
+      if (todo) {
+        todo.isChecked = checkbox.checked;
+        this.updateTodoDisplay(todoItem, checkbox.checked);
+      }
+    }
+  }
+
+  updateTodoDisplay(todoItem, isChecked) {
+    const checkbox = todoItem.querySelector('.todo-item-checkbox');
+    const todoSpan = todoItem.querySelector('.todo-text');
+
+    checkbox.classList.toggle(
+      'todo-item-checkbox-completed',
+      isChecked
+    );
+    todoSpan.classList.toggle('todo-text-completed', isChecked);
+    todoItem.classList.toggle('completed', isChecked);
+  }
+  // getTodoElement osobna metoda
+  filterAll() {
+    this.todos.forEach((todo) => {
+      const todoElement = this.todoList.querySelector(
+        `[data-id="${todo.id}"]`
+      );
+      if (todoElement) {
+        todoElement.style.display = 'flex';
+      }
+    });
+  }
+
+  filterActive() {
+    this.todos.forEach((todo) => {
+      const todoElement = this.todoList.querySelector(
+        `[data-id="${todo.id}"]`
+      );
+      if (todoElement) {
+        todoElement.style.display = todo.isChecked ? 'none' : 'flex';
+      }
+    });
+  }
+
+  filterCompleted() {
+    this.todos.forEach((todo) => {
+      const todoElement = this.todoList.querySelector(
+        `[data-id="${todo.id}"]`
+      );
+      if (todoElement) {
+        todoElement.style.display = todo.isChecked ? 'flex' : 'none';
+      }
+    });
+  }
+
+  deleteCompleted() {
+    const completedTodos = this.todos.filter(
+      (todo) => todo.isChecked
+    );
+    completedTodos.forEach((todo) => this.removeFromList(todo.id));
+  }
+}
+
+// Klasa reprezentująca pojedyncze todo
+class Todo {
+  constructor(description) {
+    this.id = UUIDgenerator.generateUUID();
+    this.description = description;
+    this.isChecked = false;
+  }
+}
+
+// Klasa pomocnicza
+class UUIDgenerator {
+  static generateUUID() {
+    return crypto.randomUUID();
+  }
+}
+
+// Klasa aplikacji
+class TodoApp {
+  constructor() {
+    this.todoList = new TodoList();
+    this.formSubmission = document.getElementById('todo-form');
+    this.todoInput = document.getElementById('new-todo-input');
+
+    this.formSubmission.addEventListener(
+      'submit',
+      this.handleSubmit.bind(this)
     );
   }
 
@@ -52,78 +183,9 @@ class TodoApp {
   }
 
   addTodo(todoText) {
-    const newTodo = document.createElement('li');
-    newTodo.className = 'todo-item';
-
-    const newTodoCheckbox = document.createElement('input');
-    newTodoCheckbox.type = 'checkbox';
-    newTodoCheckbox.className = 'todo-item-checkbox';
-
-    const newTodoSpan = document.createElement('span');
-    newTodoSpan.className = 'todo-text';
-    newTodoSpan.textContent = todoText;
-
-    this.todoList.appendChild(newTodo);
-    newTodo.appendChild(newTodoCheckbox);
-    newTodo.appendChild(newTodoSpan);
-  }
-
-  isCheckbox(element) {
-    return element.matches('.todo-item-checkbox');
-  }
-
-  toggleCompleted(checkbox, todoSpan, todoItem) {
-    checkbox.classList.toggle('todo-item-checkbox-completed');
-    todoSpan.classList.toggle('todo-text-completed');
-    todoItem.classList.toggle('completed');
-  }
-
-  returnAllItems() {
-    return document.querySelectorAll('.todo-item');
-  }
-
-  filterAll() {
-    this.returnAllItems().forEach(
-      (item) => (item.style.display = 'flex')
-    );
-  }
-
-  filterActive() {
-    this.returnAllItems().forEach((item) => {
-      const checkbox = item.querySelector('.todo-item-checkbox');
-      item.style.display = checkbox.classList.contains(
-        'todo-item-checkbox-completed'
-      )
-        ? 'none'
-        : 'flex';
-    });
-  }
-
-  filterCompleted() {
-    this.returnAllItems().forEach((item) => {
-      const checkbox = item.querySelector('.todo-item-checkbox');
-      item.style.display = checkbox.classList.contains(
-        'todo-item-checkbox-completed'
-      )
-        ? 'flex'
-        : 'none';
-    });
-  }
-
-  todoListChangeHandle(event) {
-    const checkbox = event.target;
-    const todoItem = checkbox.closest('.todo-item');
-    const todoSpan = checkbox.nextElementSibling;
-
-    if (this.isCheckbox(checkbox)) {
-      this.toggleCompleted(checkbox, todoSpan, todoItem);
-    }
-  }
-  deleteCompleted() {
-    const completedItems = Array.from(this.returnAllItems()).filter(
-      (item) => item.classList.contains('completed')
-    );
-    completedItems.forEach((item) => item.remove());
+    const newTodo = new Todo(todoText);
+    this.todoList.addTodo(newTodo);
   }
 }
+
 const todoApp = new TodoApp();
