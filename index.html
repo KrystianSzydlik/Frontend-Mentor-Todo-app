@@ -18,11 +18,57 @@
     <title>Frontend Mentor | Todo app</title>
   </head>
   <body>
-    Todo
+    <main class="todo-wrapper">
+      <header class="header-wrapper">
+        <h1 class="h1-todo">Todo</h1>
+        <button
+          class="toggle-light-dark-mode"
+          aria-label="Toggle theme"
+        >
+          <img src="./images/icon-moon.svg" alt="moon icon" />
+        </button>
+      </header>
+      <form
+        class="todo-form"
+        aria-label="Add new todo"
+        id="todo-form"
+      >
+        <input
+          class="new-todo-input"
+          id="new-todo-input"
+          minlength="1"
+          maxlength="100"
+          type="text"
+          placeholder="Create a new todo..."
+        />
+      </form>
+      <ul class="todo-list" role="list" id="todo-list"></ul>
+      <section class="counter" aria-label="Todo statistics">
+        <p>
+          <span class="items-count">5</span>
+          items left
+        </p>
+        <button class="clear-completed">Clear Completed</button>
+      </section>
 
-    <!-- Add dynamic number -->
-    items left All Active Completed Clear Completed Drag and drop to
-    reorder list
+      <nav class="filters">
+        <ul>
+          <li><button class="filter-btn filter-all">All</button></li>
+          <li>
+            <button class="filter-btn filter-active">Active</button>
+          </li>
+          <li>
+            <button
+              class="filter-btn filter-completed"
+              onclick="filterCompleted()"
+            >
+              Completed
+            </button>
+          </li>
+        </ul>
+      </nav>
+      <p class="ux-hint">Drag and drop to reorder list</p>
+    </main>
     <nav>
       <footer class="attribution">
         Challenge by
@@ -33,6 +79,6 @@
         >. Coded by <a href="#">Your Name Here</a>.
       </footer>
     </nav>
-    <script src="script.js"></script>
+    <script src="scriptClass.js"></script>
   </body>
 </html>
