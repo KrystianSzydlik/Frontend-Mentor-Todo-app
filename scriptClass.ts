@@ -1,14 +1,12 @@
 // Klasa odpowiedzialna za renderowanie całej listy
 class TodoListRenderer {
   static renderTodoList(): HTMLUListElement {
-    const todoList = document.createElement('ul');
-    todoList.id = 'todo-list';
-    todoList.className = 'todo-list';
+    const todoList = document.getElementById(
+      'todo-list'
+    ) as HTMLUListElement;
 
-    const wrapper = document.querySelector('.todo-wrapper');
-    if (!wrapper) throw new Error('Element .todo-wrapper not found');
+    if (!todoList) throw new Error('Element .todo-list not found');
 
-    wrapper.appendChild(todoList);
     return todoList;
   }
 }
@@ -44,6 +42,7 @@ class TodoList {
   constructor() {
     this.todoList = TodoListRenderer.renderTodoList();
     this.initializeEventListeners();
+    this.updateItemsCount();
   }
 
   private initializeEventListeners(): void {
@@ -86,6 +85,7 @@ class TodoList {
     this.todos.push(todo);
     const todoElement = TodoRenderer.createTodo(todo);
     this.todoList.appendChild(todoElement);
+    this.updateItemsCount();
   }
 
   removeFromList(id: string) {
@@ -98,6 +98,7 @@ class TodoList {
     if (todoElement) {
       todoElement.remove();
     }
+    this.updateItemsCount();
   }
 
   handleTodoChange(event: Event) {
@@ -168,6 +169,14 @@ class TodoList {
     );
     completedTodos.forEach((todo) => this.removeFromList(todo.id));
   }
+  updateItemsCount(): void {
+    const activeCount = this.todos.length;
+    const itemsCountElement = document.querySelector('.items-count');
+
+    if (itemsCountElement) {
+      itemsCountElement.textContent = activeCount.toString();
+    }
+  }
 }
 
 // Klasa reprezentująca pojedyncze todo
@@ -193,6 +202,7 @@ class TodoApp {
   private todoList: TodoList = new TodoList();
   private formSubmission: HTMLFormElement;
   private todoInput: HTMLInputElement;
+  private themeToggle: HTMLButtonElement;
   constructor() {
     const form = document.getElementById('todo-form');
     const input = document.getElementById('new-todo-input');
@@ -210,6 +220,41 @@ class TodoApp {
       'submit',
       this.handleSubmit.bind(this)
     );
+
+    const themeToggleElement = document.querySelector(
+      '.toggle-light-dark-mode'
+    );
+    if (
+      !themeToggleElement ||
+      !(themeToggleElement instanceof HTMLButtonElement)
+    ) {
+      throw new Error(
+        'Theme toggle button not found or is not a button'
+      );
+    }
+
+    this.themeToggle = themeToggleElement;
+    this.themeToggle.addEventListener(
+      'click',
+      this.toggleTheme.bind(this)
+    );
+  }
+
+  private toggleTheme(): void {
+    document.body.classList.toggle('dark-theme');
+    this.updateThemeIcon();
+  }
+
+  private updateThemeIcon(): void {
+    const themeIcon = this.themeToggle.querySelector('img');
+    if (!themeIcon) return;
+
+    const isDarkTheme =
+      document.body.classList.contains('dark-theme');
+    themeIcon.src = isDarkTheme
+      ? './images/icon-sun.svg'
+      : './images/icon-moon.svg';
+    themeIcon.alt = isDarkTheme ? 'sun icon' : 'moon icon';
   }
 
   handleSubmit(event: SubmitEvent) {
@@ -228,3 +273,5 @@ class TodoApp {
 }
 
 const todoApp = new TodoApp();
+
+// TODO Drag and Drop functionality
