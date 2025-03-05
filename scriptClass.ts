@@ -1,6 +1,5 @@
-// Klasa odpowiedzialna za renderowanie całej listy
-class TodoListRenderer {
-  static renderTodoList(): HTMLUListElement {
+class TodoListAnchoring {
+  static getTodoList(): HTMLUListElement {
     const todoList = document.getElementById(
       'todo-list'
     ) as HTMLUListElement;
@@ -11,7 +10,6 @@ class TodoListRenderer {
   }
 }
 
-// Klasa odpowiedzialna za renderowanie pojedynczego todo
 class TodoRenderer {
   static createTodo(todo: Todo) {
     const todoItem = document.createElement('li');
@@ -34,15 +32,13 @@ class TodoRenderer {
   }
 }
 
-// Główna klasa zarządzająca listą todos
 class TodoList {
-  private todos: Todo[] = []; // private todos: Array<Todo>;
+  private todos: Todo[] = []; // or Array<Todo>;
   private todoList: HTMLUListElement;
 
   constructor() {
-    this.todoList = TodoListRenderer.renderTodoList();
+    this.todoList = TodoListAnchoring.getTodoList();
     this.initializeEventListeners();
-    this.updateItemsCount();
   }
 
   private initializeEventListeners(): void {
@@ -61,13 +57,13 @@ class TodoList {
     );
 
     if (!filterAllBtn)
-      throw new Error('Nie znaleziono przycisku .filter-all');
+      throw new Error('Button not found .filter-all');
     if (!filterActiveBtn)
-      throw new Error('Nie znaleziono przycisku .filter-active');
+      throw new Error('Button not found .filter-active');
     if (!filterCompletedBtn)
-      throw new Error('Nie znaleziono przycisku .filter-completed');
+      throw new Error('Button not found .filter-completed');
     if (!clearCompletedBtn)
-      throw new Error('Nie znaleziono przycisku .clear-completed');
+      throw new Error('Button not found .clear-completed');
 
     filterAllBtn.addEventListener('click', () => this.filterAll());
     filterActiveBtn.addEventListener('click', () =>
@@ -89,9 +85,7 @@ class TodoList {
   }
 
   removeFromList(id: string) {
-    // Usuwanie z tablicy todos za pomocą filter
     this.todos = this.todos.filter((todo) => todo.id !== id);
-    // Usuwanie elementu DOM
     const todoElement = this.todoList.querySelector<HTMLLIElement>(
       `[data-id="${id}"]`
     );
@@ -130,7 +124,6 @@ class TodoList {
     todoSpan.classList.toggle('todo-text-completed', isChecked);
     todoItem.classList.toggle('completed', isChecked);
   }
-  // getTodoElement osobna metoda
   private getTodoElement(id: string): HTMLLIElement | null {
     return this.todoList.querySelector<HTMLLIElement>(
       `[data-id="${id}"]`
@@ -179,7 +172,6 @@ class TodoList {
   }
 }
 
-// Klasa reprezentująca pojedyncze todo
 class Todo {
   public id: string = UUIDgenerator.generateUUID();
   public description: string;
@@ -190,19 +182,16 @@ class Todo {
   }
 }
 
-// Klasa pomocnicza
 class UUIDgenerator {
   public static generateUUID() {
     return crypto.randomUUID();
   }
 }
 
-// Klasa aplikacji
 class TodoApp {
   private todoList: TodoList = new TodoList();
   private formSubmission: HTMLFormElement;
   private todoInput: HTMLInputElement;
-  private themeToggle: HTMLButtonElement;
   constructor() {
     const form = document.getElementById('todo-form');
     const input = document.getElementById('new-todo-input');
@@ -212,7 +201,7 @@ class TodoApp {
     if (!(input instanceof HTMLInputElement))
       throw new Error('Element is not an input');
 
-    // Przypisanie do właściwości klasy ?? Type assertion
+    //  Type assertion
     this.formSubmission = form as HTMLFormElement;
     this.todoInput = input as HTMLInputElement;
 
@@ -220,7 +209,28 @@ class TodoApp {
       'submit',
       this.handleSubmit.bind(this)
     );
+  }
 
+  handleSubmit(event: SubmitEvent) {
+    event.preventDefault();
+    const todoText = this.todoInput.value.trim();
+    if (todoText.length > 0) {
+      this.addTodo(todoText);
+      this.todoInput.value = '';
+    }
+  }
+
+  addTodo(todoText: string): void {
+    const newTodo = new Todo(todoText);
+    this.todoList.addTodo(newTodo);
+  }
+}
+
+const todoApp = new TodoApp();
+
+class ToggleManager {
+  private themeToggle: HTMLButtonElement;
+  constructor() {
     const themeToggleElement = document.querySelector(
       '.toggle-light-dark-mode'
     );
@@ -256,22 +266,6 @@ class TodoApp {
       : './images/icon-moon.svg';
     themeIcon.alt = isDarkTheme ? 'sun icon' : 'moon icon';
   }
-
-  handleSubmit(event: SubmitEvent) {
-    event.preventDefault();
-    const todoText = this.todoInput.value.trim();
-    if (todoText.length > 0) {
-      this.addTodo(todoText);
-      this.todoInput.value = '';
-    }
-  }
-
-  addTodo(todoText: string): void {
-    const newTodo = new Todo(todoText);
-    this.todoList.addTodo(newTodo);
-  }
 }
-
-const todoApp = new TodoApp();
-
+new ToggleManager();
 // TODO Drag and Drop functionality

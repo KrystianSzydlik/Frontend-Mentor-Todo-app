@@ -1,14 +1,12 @@
 "use strict";
-// Klasa odpowiedzialna za renderowanie całej listy
-class TodoListRenderer {
-    static renderTodoList() {
+class TodoListAnchoring {
+    static getTodoList() {
         const todoList = document.getElementById('todo-list');
         if (!todoList)
             throw new Error('Element .todo-list not found');
         return todoList;
     }
 }
-// Klasa odpowiedzialna za renderowanie pojedynczego todo
 class TodoRenderer {
     static createTodo(todo) {
         const todoItem = document.createElement('li');
@@ -26,13 +24,11 @@ class TodoRenderer {
         return todoItem;
     }
 }
-// Główna klasa zarządzająca listą todos
 class TodoList {
     constructor() {
-        this.todos = []; // private todos: Array<Todo>;
-        this.todoList = TodoListRenderer.renderTodoList();
+        this.todos = []; // or Array<Todo>;
+        this.todoList = TodoListAnchoring.getTodoList();
         this.initializeEventListeners();
-        this.updateItemsCount();
     }
     initializeEventListeners() {
         this.todoList.addEventListener('change', this.handleTodoChange.bind(this));
@@ -41,13 +37,13 @@ class TodoList {
         const filterCompletedBtn = document.querySelector('.filter-completed');
         const clearCompletedBtn = document.querySelector('.clear-completed');
         if (!filterAllBtn)
-            throw new Error('Nie znaleziono przycisku .filter-all');
+            throw new Error('Button not found .filter-all');
         if (!filterActiveBtn)
-            throw new Error('Nie znaleziono przycisku .filter-active');
+            throw new Error('Button not found .filter-active');
         if (!filterCompletedBtn)
-            throw new Error('Nie znaleziono przycisku .filter-completed');
+            throw new Error('Button not found .filter-completed');
         if (!clearCompletedBtn)
-            throw new Error('Nie znaleziono przycisku .clear-completed');
+            throw new Error('Button not found .clear-completed');
         filterAllBtn.addEventListener('click', () => this.filterAll());
         filterActiveBtn.addEventListener('click', () => this.filterActive());
         filterCompletedBtn.addEventListener('click', () => this.filterCompleted());
@@ -60,9 +56,7 @@ class TodoList {
         this.updateItemsCount();
     }
     removeFromList(id) {
-        // Usuwanie z tablicy todos za pomocą filter
         this.todos = this.todos.filter((todo) => todo.id !== id);
-        // Usuwanie elementu DOM
         const todoElement = this.todoList.querySelector(`[data-id="${id}"]`);
         if (todoElement) {
             todoElement.remove();
@@ -88,7 +82,6 @@ class TodoList {
         todoSpan.classList.toggle('todo-text-completed', isChecked);
         todoItem.classList.toggle('completed', isChecked);
     }
-    // getTodoElement osobna metoda
     getTodoElement(id) {
         return this.todoList.querySelector(`[data-id="${id}"]`);
     }
@@ -128,7 +121,6 @@ class TodoList {
         }
     }
 }
-// Klasa reprezentująca pojedyncze todo
 class Todo {
     constructor(description) {
         this.id = UUIDgenerator.generateUUID();
@@ -136,13 +128,11 @@ class Todo {
         this.description = description;
     }
 }
-// Klasa pomocnicza
 class UUIDgenerator {
     static generateUUID() {
         return crypto.randomUUID();
     }
 }
-// Klasa aplikacji
 class TodoApp {
     constructor() {
         this.todoList = new TodoList();
@@ -154,10 +144,27 @@ class TodoApp {
             throw new Error('Input element not found');
         if (!(input instanceof HTMLInputElement))
             throw new Error('Element is not an input');
-        // Przypisanie do właściwości klasy ?? Type assertion
+        //  Type assertion
         this.formSubmission = form;
         this.todoInput = input;
         this.formSubmission.addEventListener('submit', this.handleSubmit.bind(this));
+    }
+    handleSubmit(event) {
+        event.preventDefault();
+        const todoText = this.todoInput.value.trim();
+        if (todoText.length > 0) {
+            this.addTodo(todoText);
+            this.todoInput.value = '';
+        }
+    }
+    addTodo(todoText) {
+        const newTodo = new Todo(todoText);
+        this.todoList.addTodo(newTodo);
+    }
+}
+const todoApp = new TodoApp();
+class ToggleManager {
+    constructor() {
         const themeToggleElement = document.querySelector('.toggle-light-dark-mode');
         if (!themeToggleElement ||
             !(themeToggleElement instanceof HTMLButtonElement)) {
@@ -180,18 +187,6 @@ class TodoApp {
             : './images/icon-moon.svg';
         themeIcon.alt = isDarkTheme ? 'sun icon' : 'moon icon';
     }
-    handleSubmit(event) {
-        event.preventDefault();
-        const todoText = this.todoInput.value.trim();
-        if (todoText.length > 0) {
-            this.addTodo(todoText);
-            this.todoInput.value = '';
-        }
-    }
-    addTodo(todoText) {
-        const newTodo = new Todo(todoText);
-        this.todoList.addTodo(newTodo);
-    }
 }
-const todoApp = new TodoApp();
+new ToggleManager();
 // TODO Drag and Drop functionality
